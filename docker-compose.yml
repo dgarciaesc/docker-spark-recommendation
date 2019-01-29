@@ -1,0 +1,53 @@
+version: '3'
+services:
+  falcon:
+    container_name: "falcon_container"
+    image: "dgarciaesc/falcondemo"
+    ports:
+     - "8000:8000"
+    depends_on:
+     - kafka
+     - cassandra
+  zookeeper:
+    container_name: "zookeper_container"
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    container_name: "kafka_container"
+    image: "wurstmeister/kafka:0.10.2.0"
+    ports:
+     - "9092:9092"
+    hostname: kafka
+    depends_on:
+     - zookeeper
+    environment:
+     - KAFKA_ADVERTISED_HOST_NAME=kafka
+     - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+     - KAFKA_ADVERTISED_PORT=9092
+  spark:
+    container_name: "spark_container"
+    image: "jupyter/pyspark-notebook:b17be6205231"
+    command: bash -c "start-notebook.sh --ip='*' --NotebookApp.token=''; chmod -R 777 /home/jovyan/work"
+    volumes:
+      - C:\Users\garcia david\projects\Microservices-bigdatacase\:/home/jovyan/work
+    ports:
+     - "8888:8888"
+     - "4040:4040"
+     - "4041:4041"
+    depends_on:
+      - kafka
+      - cassandra
+      - falcon
+  cassandra:
+    container_name: "cassandra_container"
+    image: "cassandra:3"
+    volumes:
+     - C:\Users\garcia david\projects\Microservices-bigdatacase\cassandra:/bdr
+    ports:
+     - "7000:7000"
+     - "7001:7001"
+     - "7199:7199"
+     - "9042:9042"
+     - "9160:9160"
+
